@@ -1,6 +1,6 @@
 logic = {
 	characters = {
-		pinky = { position = { x = 12, y = 14 }, state = "alive", direction = "right", runanimationtime = 0, running = false, },
+		pinky = { position = { x = 12, y = 12 }, state = "alive", direction = "right", runanimationtime = 0, running = false, },
 		pacman = {position = { x = 14, y = 18 }, direction = "right", nextdirection = "right", time = 0, maxtime = 0.2, runanimationtime = 0, running = false}
 	},
 	ghosts = {haunting = false, blinktime = 0, blinksubstate = 0, runtime = 0, maxblinktime = 0.1, maxruntime = 0.2},
@@ -136,22 +136,37 @@ function randommove (character)
 		moveCharacter(character, character.direction)
 		return
 	end]]
-	local possibleMoves = getPossibleMoves(character)
-	moveCharacter(character, possibleMoves[math.random(#possibleMoves)])
+	local allDirections, directions = {"up", "down", "left", "right"}, {}
+	for _, v in ipairs (allDirections) do
+		if getBackwards(v) ~= character.direction then
+			table.insert(directions, v)
+		end
+	end
+	local possibleMoves = getPossibleMoves(character, directions)
+	for _, v in ipairs (possibleMoves) do
+		print (v)
+	end
+	local direction = possibleMoves[math.random(#possibleMoves)]
+	print("next direction", direction)
+	moveCharacter(character, direction)
 end
-function getPossibleMoves (character)
+function getBackwards(direction)
+	if direction == "up" then
+		return "down"
+	elseif direction == "down" then
+		return "up"
+	elseif direction == "right" then
+		return "left"
+	elseif direction == "left" then
+		return "right"
+	end
+end
+function getPossibleMoves (character, directions)
 	local possibleMoves = {}
-	if moveIsPossible(character.position, "up") then
-		table.insert(possibleMoves, "up")
-	end
-	if moveIsPossible(character.position, "down") then
-		table.insert(possibleMoves, "down")
-	end
-	if moveIsPossible(character.position, "up") then
-		table.insert(possibleMoves, "left")
-	end
-	if moveIsPossible(character.position, "up") then
-		table.insert(possibleMoves, "left")
+	for _, direction in ipairs(directions) do
+		if moveIsPossible(character.position, direction) then
+			table.insert(possibleMoves, direction)
+		end
 	end
 	return possibleMoves
 end
